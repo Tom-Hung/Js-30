@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions"></ul>
+    </form>
+    <script>
+      const endpoint = "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+
+      // My way
+      // ----------------------------------------------------------------------------------------
+      // function showData() {
+      //   console.log(this.value);
+      //   console.log(document.querySelector(".suggestions").querySelectorAll("li"));
+      //   const old_list = document.querySelector(".suggestions").querySelectorAll("li");
+
+      //   old_list.forEach((li) => {
+      //     li.remove();
+      //   });
+
+      //   fetch(endpoint, { method: "GET" })
+      //     .then((res) => {
+      //       // console.log(res.json());
+      //       return res.json();
+      //     })
+      //     .then((datas) => {
+      //       console.log(datas);
+      //       const filter_data = datas.filter((data) => {
+      //         // console.log(data.city);
+      //         if (data.city.toLowerCase().includes(this.value.toLowerCase() === "" ? false : this.value.toLowerCase())) {
+      //           return data;
+      //         }
+      //       });
+
+      //       filter_data.forEach((data) => {
+      //         console.log(data.city);
+      //         document.querySelector(".suggestions").insertAdjacentHTML("beforeend", `<li>${data.city} ${data.population}</li>`);
+      //       });
+      //     });
+      // }
+
+      // const search = document.querySelector(".search");
+      // // console.log(search);
+      // search.addEventListener("input", showData);
+      // ----------------------------------------------------------------------------------------
+      // 檢討
+      // 我的寫法是每次 input 時都去 fetch 一次，非常的耗資源與時間，所以實際上我只需要建立一個變數，將
+      // 取得的資料存入就好，當然我直接 console 的話，這變數會是空的，因為像 fetch 這種非同步事件屬於
+      // eventque 會等到 execution context 執行完後才被執行，而 execution context 時就列印該變數，自
+      // 然會是 undefined，不過，這對後續的應用也不影響，因為我們的查詢也是一個 eventque ，在那時我們的
+      // 變數裡已經裝有資料了。
+
+      // 關於模組化的概念非常重要，把能拆分的功能獨立為一個 function 真的簡潔許多
+
+      // ----------------------------------------------------------------------------------------
+      // Autohor way
+      // ----------------------------------------------------------------------------------------
+      // const cities = [];
+      // const Searchinput = document.querySelector(".search");
+      // const Suggestionslist = document.querySelector(".suggestions");
+
+      // fetch(endpoint)
+      //   .then((res) => {
+      //     console.log(res);
+      //     return res.json();
+      //   })
+      //   .then((data) => {
+      //     console.log(data);
+      //     // spread 語法，... 就是複製一份某物件的內容的
+      //     cities.push(...data);
+      //   });
+
+      // function findMatch(wordToMatch, cities) {
+      //   return cities.filter((place) => {
+      //     //正規表達是物件，第一個參數為定義來比對的模型、第二個是比對規則，g:比對字串所有位置  i:不區分大小寫
+      //     const regex = new RegExp(wordToMatch, "gi");
+      //     return place.city.match(regex) || place.state.match(regex);
+      //   });
+      // }
+
+      // function displayMatch() {
+      //   const matchArray = findMatch(this.value, cities);
+      //   const html = matchArray
+      //     .map((place) => {
+      //       const regex = new RegExp(this.value, "gi");
+      //       const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+      //       const stateName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+
+      //       return `<li>
+      //         <span>${cityName} ${stateName}</span>
+      //         <span>${place.population}</span>
+      //       </li>`;
+      //     })
+      //     .join("");
+      //   console.log(html);
+      //   Suggestionslist.innerHTML = html;
+      // }
+
+      // Searchinput.addEventListener("input", displayMatch);
+
+      // ----------------------------------------------------------------------------------------
+      // 檢討
+      // 1. fetch ?
+      //      console.log(fetch(endpoint));
+      //      fetch 會回傳一個 Promise 物件，物件有屬性、方法，Promise 物件有屬性，例如 status 告訴我們連接的狀態，
+      //      有 then() catch() 方法，可以對取得到的結果進行後續操作。
+      //      第一個 .then() 我們會對連線的結果進行操作，例如成功就轉 json() 格式，失敗就 throw error
+      //      根據第一個 then 回傳的結果，我們可以由下一個 then() 做接續，或者失敗時由 catch 接續
+
+      // 2. 正規表達式 ?
+      //      可以用來搜尋、檢查、替換字串，原理就是我宣告一個 regular expression 物件，物件裡面定義我預設的模型，之後我將
+      //      要我的字串與這個模型做比較，來進行後續操作比對(match)、替換(replace) ... ( 五倍紅寶石有詳細介紹 )
+
+      // 3. Array.forEach() 會回傳 undefined 喔，所以希望有回傳職的話還是用 map() 吧，希望回傳的不是陣列就在轉換就好，例如
+      //     join() 可以將陣列轉為字串
+
+      // 4. .innerHTML = HTML 可以插入 HTML TAG 也可以是一個段落，insertAdjacentHTML()這個新方法似乎對於插入有更好的效能
+    </script>
+  </body>
+</html>

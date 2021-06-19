@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JS + CSS Clock</title>
+  </head>
+  <body>
+    <div class="clock">
+      <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand min-hand"></div>
+        <div class="hand second-hand"></div>
+        <div class="test">123</div>
+      </div>
+    </div>
+
+    <style>
+      html {
+        background: #018ded url(https://unsplash.it/1500/1000?image=881&blur=5);
+        background-size: cover;
+        font-family: "helvetica neue";
+        text-align: center;
+        font-size: 10px;
+      }
+
+      body {
+        margin: 0;
+        font-size: 2rem;
+        display: flex;
+        flex: 1;
+        min-height: 100vh;
+        align-items: center;
+      }
+
+      .clock {
+        width: 30rem;
+        height: 30rem;
+        border: 20px solid white;
+        border-radius: 50%;
+        margin: 50px auto;
+        position: relative;
+        padding: 2rem;
+        box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1), inset 0 0 0 3px #efefef,
+          inset 0 0 10px black, 0 0 10px rgba(0, 0, 0, 0.2);
+        /* 新增 */
+        transform: rotate(90deg);
+      }
+
+      .clock-face {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform: translateY(
+          -3px
+        ); /* account for the height of the clock hands */
+      }
+
+      .hand {
+        width: 50%;
+        height: 6px;
+        background: black;
+        position: absolute;
+        top: 50%;
+        /* 新增 */
+        transform-origin: right;
+      }
+
+      .hour-hand {
+      }
+    </style>
+
+    <script>
+      // 1. 取得時間 ? new Date ?
+      // 2. 時 分 秒 ?
+      // 3. 怎麼樣讓時分秒 rotate ?
+      // rotate 與現在的時間建立關係 ?
+
+      // transition-origin
+      // getElementByclass 了解
+
+      // My way
+      // -----------------------------------------------------------------
+      // let currentTime;
+      // let currentHour;
+      // let currentMinute;
+      // let currentSecond;
+
+      // let hourAngle;
+      // let minAngle;
+      // let secondAngle;
+
+      // const hourhand = document.querySelector(".hour-hand");
+      // const minhand = document.querySelector(".min-hand");
+      // const secondhand = document.querySelector(".second-hand");
+
+      // function updateTime() {
+      //   currentTime = new Date();
+      //   currentHour = currentTime.getHours();
+      //   currentMinute = currentTime.getMinutes();
+      //   currentSecond = currentTime.getSeconds();
+
+      //   if (currentHour > 11) currentHour = currentHour - 12;
+
+      //   hourAngle = currentHour * (360 / 12);
+      //   minAngle = currentMinute * (360 / 60);
+      //   secondAngle = currentSecond * (360 / 60);
+
+      //   hourhand.style.transform = `rotate(${hourAngle}deg)`;
+      //   minhand.style.transform = `rotate(${minAngle}deg)`;
+      //   secondhand.style.transform = `rotate(${secondAngle}deg)`;
+      // }
+
+      // setInterval(updateTime, 1000);
+      // -----------------------------------------------------------------
+      // author way + My way
+      const hourhand = document.querySelector(".hour-hand");
+      const minhand = document.querySelector(".min-hand");
+      const secondhand = document.querySelector(".second-hand");
+      const test = document.getElementsByClassName("test");
+      console.log(test);
+      test[0].style.color = "blue";
+
+      function updateTime() {
+        let currentTime = new Date();
+        let currentHour = currentTime.getHours();
+        let currentMinute = currentTime.getMinutes();
+        let currentSecond = currentTime.getSeconds();
+
+        //時
+        if (currentHour > 11) currentHour = currentHour - 12;
+        let hourAngle =
+          currentHour * (360 / 12) + currentMinute * (360 / 12 / 60);
+        hourhand.style.transform = `rotate(${hourAngle}deg)`;
+
+        //分
+        let minAngle =
+          currentMinute * (360 / 60) + currentSecond * (360 / 60 / 60);
+        minhand.style.transform = `rotate(${minAngle}deg)`;
+
+        //秒
+        let secondAngle = (currentSecond / 60) * 360;
+        secondhand.style.transform = `rotate(${secondAngle}deg)`;
+      }
+
+      setInterval(updateTime, 1000);
+      // -----------------------------------------------------------------
+      //檢討
+      // 1. 第二部分有做份細部的時針，分針會受秒針影響，會受分針影響，邏輯部分花滿久才搞懂
+      //    => 1 分鐘會動 ( 360/60 度 ) = 6 度，我們將這個 6 度分給秒針 ( 60 等分 )，就可以知道秒針如何影響分針了
+      //    => 1 小時會動 ( 360/12 度 ) = 30 度，我們將這個 30 度分給分針 ( 60 等分 )，就可以知道秒針如何影響分針了
+      // 2.  transform-origin: 控制軸心，會跟 tranform 一起使用，第一個參數為 x 軸，第二個參數為 y 軸，預設值為 50% 50% 中心點
+      // 3. getElementByclass 會回傳一個 HTMLCollection 物件，長得像陣列一樣，要使用時即便只有一個值，也要用 element[0] 使用才行
+    </script>
+  </body>
+</html>

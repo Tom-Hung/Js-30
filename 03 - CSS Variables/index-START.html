@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scoped CSS Variables and JS</title>
+  </head>
+  <body>
+    <h2>Update CSS Variables with <span class="hl">JS</span></h2>
+    <!-- onchange="changevalue(event)" -->
+    <div class="controls">
+      <label for="spacing">Spacing:</label>
+      <input id="spacing" type="range" name="spacing" min="10" max="200" value="10" data-sizing="px" />
+
+      <label for="blur">Blur:</label>
+      <input id="blur" type="range" name="blur" min="0" max="25" value="0" data-sizing="px" />
+
+      <label for="base">Base Color</label>
+      <input id="base" type="color" name="base" value="#ffc600" />
+    </div>
+
+    <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500" />
+
+    <style>
+      /*
+      misc styles, nothing to do with CSS variables
+    */
+      :root {
+        --img-blur: 0px;
+        --img-spacing: 0px;
+        --img-base: #ffc600;
+      }
+
+      body {
+        text-align: center;
+        background: #193549;
+        color: white;
+        font-family: "helvetica neue", sans-serif;
+        font-weight: 100;
+        font-size: 50px;
+      }
+
+      .controls {
+        margin-bottom: 50px;
+      }
+
+      input {
+        width: 100px;
+      }
+
+      img {
+        filter: blur(var(--img-blur));
+        padding: var(--img-spacing);
+        background-color: var(--img-base);
+      }
+
+      .hl {
+        color: var(--img-base);
+      }
+    </style>
+
+    <script>
+      // plan
+      // 1. 在 CSS 中，加入變數操作
+      // 2. Js 取得使用者的 input value，將 Js 變數傳遞給 CSS
+
+      // My way
+      //------------------------------------------------------------------
+
+      // const file = document.querySelector(":root");
+
+      // function changevalue(e) {
+      //   const target = e.currentTarget.id;
+      //   const value = e.currentTarget.value;
+      //   file.style.setProperty(`--img-${target}`, `${value.includes("#") ? value : value + "px"}`);
+      // }
+
+      //------------------------------------------------------------------
+
+      // 檢討
+      // 1. root 選取器，選取到網頁中的根源素 <html>，主要用設置全域的CSS 變數
+      // 2. CSS 變數 : 設置方式: --set-variables:"value"，在要使用的地方 : var(--set-variables)
+      // 3. onchange 可以傳遞參數 event 與 this，event 會回傳 event 物件，this 會回傳 element 本身，e 在 (HTML) 這邊是不行的
+      // 4. Pelement.style.setroperty(propertyName, value, priority); 可以設置 CSS 屬性
+      // 5. 我這邊用了變數字串的方式取代了 switch 方法，在最後的部分顏色不用 px ，所以用了判斷式 ? : 來決定要不要加 px
+
+      //------------------------------------------------------------------
+      // Author way
+      //------------------------------------------------------------------
+
+      const inputs = document.querySelectorAll("input");
+      const file = document.querySelector(":root");
+
+      function updateStyle() {
+        const suffix = this.dataset.sizing || "";
+        file.style.setProperty(`--img-${this.id}`, `${this.value}` + `${suffix}`);
+      }
+
+      inputs.forEach((input) => input.addEventListener("change", updateStyle));
+      inputs.forEach((input) => input.addEventListener("mousemove", updateStyle));
+      //------------------------------------------------------------------
+
+      // 檢討
+      // 1. querySelectorAll() 回傳 NodeList (Array like Object)，不像一般 Array 可以用很多 method，透過 console.log() 印出
+      //    點裡面的 _proto_，可以看到它能用的 method 不多
+      // 2. mousemove event = 使用者移動滑鼠時發生
+      // 3. 注意 changeStyle 的 this ，因為在 addEventListener() 中，而 addEventListener() 依附於 input (有一個點 .)，所以 this 會指到 input
+      // 4. HTML 有一個屬性的用法為 data-，後面可以是小寫英文與數字，在 JavaScript 中可以透過 dataset."自己取的名稱" 取得元素
+      // 5. 在處理字尾有沒有 px　時，用了判斷是否存在的方法 ||，會找到第一個為 true 的值，若找到最後都沒有則回傳最後一個 false 值
+      //    此處，this.dataset.sizing 在用"顏色的 input"觸發時，值為 undefined，因為 this.dataset 會是一個叫做 DOMStringMap 的物件，這個物件存在
+      //    ，只是裡面還沒有定義 sizing 屬性，因此為 undefined
+
+      var a = 10;
+      var b;
+
+      b = a;
+      a = 30;
+      console.log(a);
+      console.log(b);
+
+      var c = { greeting: "Hi" };
+      var d;
+
+      d = c;
+      d.greeting = "HeHe";
+
+      console.log(c);
+      console.log(d);
+
+      c = { greeting: "howdy" };
+      console.log(c);
+      console.log(d);
+    </script>
+  </body>
+</html>

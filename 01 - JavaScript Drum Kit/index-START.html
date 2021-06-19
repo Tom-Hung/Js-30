@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JS Drum Kit</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="keys">
+      <div data-key="65" class="key">
+        <kbd>A</kbd>
+        <span class="sound">clap</span>
+      </div>
+      <div data-key="83" class="key">
+        <kbd>S</kbd>
+        <span class="sound">hihat</span>
+      </div>
+      <div data-key="68" class="key">
+        <kbd>D</kbd>
+        <span class="sound">kick</span>
+      </div>
+      <div data-key="70" class="key">
+        <kbd>F</kbd>
+        <span class="sound">openhat</span>
+      </div>
+      <div data-key="71" class="key">
+        <kbd>G</kbd>
+        <span class="sound">boom</span>
+      </div>
+      <div data-key="72" class="key">
+        <kbd>H</kbd>
+        <span class="sound">ride</span>
+      </div>
+      <div data-key="74" class="key">
+        <kbd>J</kbd>
+        <span class="sound">snare</span>
+      </div>
+      <div data-key="75" class="key">
+        <kbd>K</kbd>
+        <span class="sound">tom</span>
+      </div>
+      <div data-key="76" class="key">
+        <kbd>L</kbd>
+        <span class="sound">tink</span>
+      </div>
+    </div>
+
+    <audio data-key="65" src="sounds/clap.wav"></audio>
+    <audio data-key="83" src="sounds/hihat.wav"></audio>
+    <audio data-key="68" src="sounds/kick.wav"></audio>
+    <audio data-key="70" src="sounds/openhat.wav"></audio>
+    <audio data-key="71" src="sounds/boom.wav"></audio>
+    <audio data-key="72" src="sounds/ride.wav"></audio>
+    <audio data-key="74" src="sounds/snare.wav"></audio>
+    <audio data-key="75" src="sounds/tom.wav"></audio>
+    <audio data-key="76" src="sounds/tink.wav"></audio>
+
+    <script>
+      // 鍵盤被按觸發
+      // 檢查 data key 如果符合就執行
+      // 撥放音檔
+      // css 效果 play
+
+      //----------------------------------------------------------
+      // Way 1 : window event + switch case
+      // ( switch 的方式寫太死，很不方便 )
+      //----------------------------------------------------------
+
+      // window.addEventListener("keyup", function (event) {
+      //   switch (event.keyCode) {
+      //     case 65:
+      //       document.querySelector('audio[data-key="65"]').play();
+      //       document
+      //         .querySelector('div[data-key="65"]')
+      //         .classList.add("playing");
+      //       setTimeout(function () {
+      //         document
+      //           .querySelector('div[data-key="65"]')
+      //           .classList.remove("playing");
+      //       }, 100);
+      //       break;
+      //   }
+      // });
+
+      //----------------------------------------------------------
+      // Way 2 : window event + 變數 selector
+      //----------------------------------------------------------
+      // var keyCodeList = [];
+      // var keys = document.getElementsByClassName("key");
+
+      // for (let i = 0; i < keys.length; i++) {
+      //   keyCodeList.push(parseInt(keys[i].getAttribute("data-key")));
+      // }
+
+      // window.addEventListener("keyup", function (event) {
+      //   var btnExist = false;
+
+      //   keyCodeList.every((element) => {
+      //     if (element === event.keyCode) {
+      //       btnExist = true;
+      //       return false;
+      //     }
+      //     return true;
+      //   });
+
+      //   if (btnExist) {
+      //     var btn = document.querySelector(
+      //       `div[data-key="${event.keyCode}"]`
+      //     ).classList;
+      //     var audio = document.querySelector(
+      //       `audio[data-key="${event.keyCode}"]`
+      //     );
+
+      //     audio.load();
+      //     audio.play();
+      //     btn.add("playing");
+
+      //     setTimeout(function () {
+      //       btn.remove("playing");
+      //     }, 100);
+      //   }
+      // });
+      //----------------------------------------------------------
+      //Way of author
+
+      function playaudio(e) {
+        const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
+        const btn = document.querySelector(`div[data-key="${e.keyCode}"]`);
+        if (!audio) return;
+        audio.currentTime = 0;
+        audio.play();
+        btn.classList.add("playing");
+      }
+
+      function removestyle(e) {
+        if (e.propertyName !== "transform") return;
+        this.classList.remove("playing");
+      }
+
+      const keys = document.querySelectorAll(".key");
+
+      keys.forEach((key) => {
+        key.addEventListener("transitionend", removestyle);
+      });
+
+      window.addEventListener("keyup", playaudio);
+
+      //----------------------------------------------------------
+      // 重點
+      // 1.我的 way2 方法，在判斷鍵盤按下的按鍵是否有對應的 data-key 存在時，先將現有的 key 全都選取，跑回圈放進陣列，在觸發鍵盤事件時再透過
+      //   另一個迴圈做比較該 event.keyCode 是否存在於陣列中，有的話就接續執行。作者的做法為運用選取不到就回傳 null 的特性來做判斷，只用了一行
+      //   就達到一樣的效果，所以可以多試試看，關於這些值如何運用 ? 能達到最高的效益，缺少嘗試只跟著自己預想的邏輯走有時會繞遠路。
+
+      // 2.setTimeout 方法去取消 css 樣式完全可行的，但作者沒有採用的原因在於: 當 css 更動時例如動畫時間拉長 javascript 也要更動，更動越多一
+      //   來麻煩，二來是出錯率會提升。
+
+      //3.transitionend event : 意思是當動畫效果結束時會觸發
+      //4.getElementByClassName('key')，在這邊回傳了一個 HTMLCollection 物件，既然是物件就無法用陣列專用的 forEach，所以後來採用 querySelectorAll()
+      //5.if(!audio) return 很簡短的判斷式
+      //6.function 獨立出來，分出運行的區域，以及定義函式區域會清楚很多
+      //7.這邊 this.classList.remove("playing") 完後，還會在觸發一次 transition，因為 transition 要變回原本的狀態，解釋如下:
+      //  =>  In your case, you define how the object looks when it has the class "saved" and you define how it looks when it doesn't have the class "saved" (it's normal look). When you remove the class "saved", it will transition to the other state according to the transition settings in place for the object without the "saved" class.
+
+      //------------------------------------------
+    </script>
+  </body>
+</html>
