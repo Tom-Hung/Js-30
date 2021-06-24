@@ -1,12 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Key Detection</title>
-  <script type="text/javascript" src="https://www.cornify.com/js/cornify.js"></script>
-</head>
-<body>
-<script>
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Key Detection</title>
+    <script type="text/javascript" src="https://www.cornify.com/js/cornify.js"></script>
+  </head>
+  <body>
+    <script>
+      // My Way
+      // ------------------------------------------------------------------------------------
+      // const easterEgg = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "b", "a"];
+      // let lastkey;
+      // let index = 0;
+
+      // function detect(e) {
+      //   if (e.key === easterEgg[index]) {
+      //     if (index === easterEgg.length - 1) console.log("yes");
+      //     index++;
+      //   } else {
+      //     if (lastkey === e.key) return;
+      //     index = 0;
+      //   }
+      //   lastkey = e.key;
+      // }
+
+      // window.addEventListener("keyup", detect);
+      // ------------------------------------------------------------------------------------
+
+      //Author Way
+
+      // ------------------------------------------------------------------------------------
+
+      const secretCode = "we";
+      let presskeys = [];
+
+      function detect(e) {
+        presskeys.push(e.key);
+        // 當 presskey 陣列的長度一超過我們的預設陣列，就會刪除數量 1，不斷的將最左邊的第一個踢掉，讓陣列永遠保持再一定長度
+        presskeys.splice(0, presskeys.length - secretCode.length);
+        if (presskeys.join("").includes(secretCode)) {
+          cornify_add();
+        }
+      }
+
+      window.addEventListener("keyup", detect);
+      // ------------------------------------------------------------------------------------
+    </script>
+  </body>
 </html>
